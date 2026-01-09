@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognization in Real-Time</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("./img/seven.png");
+            background-size: 100% 100%;
+            height: auto;
+            background-repeat: no-repeat;
+        }
+
+        body h1 {
+            font-size: 37px;
+            background: linear-gradient(to right bottom, rgba(15, 15, 15, 0.6), rgb(238, 239, 241), blue);
+            -webkit-background-clip: text;
+            text-decoration: underline;
+            -webkit-text-fill-color: transparent;
+            background-size: 200%;
+            animation: animatee 4s linear infinite;
+        }
+
+        @keyframes animatee {
+            to {
+                background-position: 200%;
+            }
+        }
+
+        #cameraPreview {
+            width: 600px;
+            height: 421px;
+            border-radius: 40px;
+            background-color: #000;
+            object-fit: cover;
+            box-shadow: 0px 0px 10px 5px gray;
+            animation: animateShadow 4s linear infinite;
+        }
+
+        .boxx {
+            position: relative;
+        }
+
+        #cameraIconOverlay {
+            position: absolute;
+            top: 0px;
+            width: 600px;
+            height: 422px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes animateShadow {
+            0% {
+                box-shadow: 0px -10px 15px gray;
+            }
+
+            25% {
+                box-shadow: 10px 0px 15px gray;
+            }
+
+            50% {
+                box-shadow: 0px 10px 15px gray;
+            }
+
+            75% {
+                box-shadow: -10px 0px 15px gray;
+            }
+
+            100% {
+                box-shadow: 0px -10px 15px gray;
+            }
+        }
+
+        .button-container {
+            margin: 12px;
+            display: flex;
+            gap: 18px;
+        }
+
+        button {
+            padding: 10px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #openCamera {
+            background-color: #2196F3;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #openCamera::after {
+            content: '';
+            position: absolute;
+            top: -55%;
+            right: -2%;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.637);
+            border-radius: 50%;
+            transform: translate(0, 0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        #openCamera:hover {
+            box-shadow: 0px 1px 15px rgb(41, 40, 40);
+        }
+
+        #openCamera:hover::after {
+            transform: translate(-900%, 350%);
+        }
+
+        #captureButton {
+            background-color: #4CAF50;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #captureButton::after {
+            content: '';
+            position: absolute;
+            top: -55%;
+            right: -2%;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.637);
+            border-radius: 50%;
+            transform: translate(0, 0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .button-active:hover::after {
+            transform: translate(-900%, 350%);
+        }
+
+        .button-active:hover {
+            box-shadow: 0px 1px 15px rgb(41, 40, 40);
+        }
+
+        button:disabled {
+            background-color: #9E9E9E;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        #result {
+            width: 250px;
+            padding: 14px;
+            text-align: center;
+            min-height: 50px;
+            border-radius: 16px;
+            font-weight: bolder;
+            background-image: linear-gradient(to right top, rgb(144, 144, 212), white);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #loading {
+            color: #5a5a5a;
+            font-style: italic;
+            text-decoration: underline;
+        }
+
+        @media screen and (min-width: 320px) and (max-width: 550px) {}
+    </style>
+</head>
+
+<body>
+    <h1>Face Recognization in Real-Time</h1>
+    <div class="boxx">
+        <video id="cameraPreview" autoplay playsinline></video>
+        <div id="cameraIconOverlay">📷</div>
+    </div>
+    <canvas id="capturedImage" class="hidden"></canvas>
+
+    <div class="button-container">
+        <button id="openCamera" onclick="initializeCamera()">Open Camera</button>
+        <button id="captureButton" onclick="captureImage()" disabled>Capture Photo</button>
+    </div>
+
+    <div id="result">
+        <div id="loading" class="hidden">Processing image...</div>
+        <div id="output"></div>
+    </div>
+
+    <audio id="snapSound" src="snap.mp3" preload="auto"></audio>
+    <script>
+        const videoElement = document.getElementById('cameraPreview');
+        const captureButton = document.getElementById('captureButton');
+        const loadingElement = document.getElementById('loading');
+        const outputElement = document.getElementById('output');
+        const canvasElement = document.getElementById('capturedImage');
+        const cameraIconOverlay = document.getElementById('cameraIconOverlay');
+        const snapSound = document.getElementById('snapSound');
+        let mediaStream = null;
+    
+        async function initializeCamera() {
+          try {
+            if (!navigator.mediaDevices?.getUserMedia) {
+              showError('Camera API not supported in this browser');
+              return;
+            }
+    
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }
+            });
+    
+            videoElement.srcObject = mediaStream;
+            await videoElement.play();
+    
+            captureButton.disabled = false;
+            captureButton.classList.add('button-active');
+            showMessage('Ready to Capture Image☺️!');
+            cameraIconOverlay.style.display = 'none';
+          } catch (error) {
+            handleCameraError(error);
+          }
+        }
+    
+        function captureImage() {
+          snapSound.currentTime = 0;
+          snapSound.play();
+    
+          const [width, height] = [videoElement.videoWidth, videoElement.videoHeight];
+          canvasElement.width = width;
+          canvasElement.height = height;
+    
+          const context = canvasElement.getContext('2d');
+          context.drawImage(videoElement, 0, 0, width, height);
+    
+          // Freeze the frame
+          videoElement.pause();
+    
+          canvasElement.toBlob(blob => {
+            uploadImage(blob);
+          }, 'image/jpeg', 0.9);
+        }
+    
+        async function uploadImage(blob) {
+          try {
+            showLoading();
+            captureButton.disabled = true;
+            captureButton.classList.remove('button-active');
+    
+            const formData = new FormData();
+            formData.append('image', blob, 'capture.jpg');
+    
+            const response = await fetch('http://localhost:8000/process-image/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-CSRFToken': getCSRFToken(),
+              },
+            });
+    
+            if (!response.ok) throw new Error('Server error');
+    
+            const data = await response.json();
+            if (data.redirect) {
+              window.location.href = 'http://localhost:8000' + data.redirect;
+            } else {
+              showResult(data);
+            }
+          } catch (error) {
+            showError(`Error: ${error.message}`);
+          } finally {
+            hideLoading();
+            captureButton.disabled = false;
+            captureButton.classList.add('button-active');
+            // Resume video after processing
+            // if (mediaStream) videoElement.play();
+          }
+        }
+    
+        function showLoading() {
+          loadingElement.classList.remove('hidden');
+          outputElement.innerHTML = '';
+        }
+    
+        function hideLoading() {
+          loadingElement.classList.add('hidden');
+        }
+    
+        function showResult(data) {
+          outputElement.innerHTML = data.result;
+        }
+    
+        function showMessage(message) {
+          outputElement.innerHTML = message;
+          outputElement.style.color = '#333';
+        }
+    
+        function showError(message) {
+          outputElement.innerHTML = message;
+          outputElement.style.color = '#d32f2f';
+        }
+    
+        function handleCameraError(error) {
+          console.error('Camera Error:', error);
+          showError(`Camera error: ${error.name}`);
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+          }
+        }
+    
+        function getCSRFToken() {
+          return document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1] || '';
+        }
+    
+        window.addEventListener('beforeunload', () => {
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+          }
+        });
+      </script>
+</body>
+
+</html>
