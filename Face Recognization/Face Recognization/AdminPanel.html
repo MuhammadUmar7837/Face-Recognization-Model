@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(to right top,rgba(22, 22, 22, 0.842), rgba(27, 27, 158, 0.788), rgba(150, 51, 51, 0.897) )
+        ;
+ /* background-image: url("./img/admin.png");  */
+        background-size: cover;
+        height: 100vh;
+        background-repeat: no-repeat;
+      }
+      body h1 {
+        font-size: 37px;
+        background: linear-gradient(
+          to right bottom,
+          rgba(15, 15, 15, 0.6),
+          rgb(238, 239, 241),
+          blue
+        );
+        -webkit-background-clip: text;
+        text-decoration: underline;
+        -webkit-text-fill-color: transparent;
+        background-size: 200%;
+        animation: animatee 4s linear infinite;
+      }
+
+      @keyframes animatee {
+        to {
+          background-position: 200%;
+        }
+      }
+      .manage {
+        font-size: 25px !important;
+      }
+
+      .admin {
+        font-size: 37px;
+        background: linear-gradient(
+          to right bottom,
+          rgba(194, 20, 20, 0.6),
+          rgb(238, 239, 241),
+          blue
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200%;
+        animation: animatee 4s linear infinite;
+      }
+
+      @keyframes animatee {
+        to {
+          background-position: 200%;
+        }
+      }
+
+      .container {
+        background-color: rgba(44, 44, 44, 0.788);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0px 0px 10px 5px gray;
+        width: 600px;
+        text-align: center;
+        animation: animateShadow 4s linear infinite;
+      }
+
+      @keyframes animateShadow {
+        0% {
+          box-shadow: 0px -10px 15px gray;
+        }
+
+        25% {
+          box-shadow: 10px 0px 15px gray;
+        }
+
+        50% {
+          box-shadow: 0px 10px 15px gray;
+        }
+
+        75% {
+          box-shadow: -10px 0px 15px gray;
+        }
+
+        100% {
+          box-shadow: 0px -10px 15px gray;
+        }
+      }
+
+      button {
+        padding: 10px 20px;
+        margin: 10px;
+        background-color: #2196f3;
+        transition: 1s all ease-in-out;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #1976d2;
+        cursor: pointer;
+        transition: 1s ease-in-out;
+      }
+
+      .delete-btn {
+        background-color: #d32f2f;
+        transition: 1s all ease-in-out;
+      }
+
+      .delete-btn:hover {
+        background-color: #b71c1c;
+        transition: 1s ease-in-out;
+        cursor: pointer;
+      }
+
+      #enrollForm,
+      #deleteView {
+        display: none;
+        margin-top: -45px;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #enrollForm.enroll-active {
+        height: 530px;
+        justify-content: space-evenly;
+      }
+
+      #cameraPreview {
+        width: 100%;
+        position: absolute;
+        top:0;
+        height: 300px !important;
+        border-radius: 10px;
+        background-color: #000;
+        object-fit: cover;
+      }
+
+      .inputformbox {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 80%;
+      }
+
+      .containerr {
+        width: 80%;
+        max-width: 20em;
+        height: 2.5em;
+        position: relative;
+      }
+
+      .form_input {
+        position: absolute;
+        left: 0;
+        height: 55%;
+        width: 60%;
+        background-color: black;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+        border-radius: 0.5em;
+        outline: none;
+        color: rgb(236, 234, 234);
+        padding-left: 1em;
+        font-size: 1em;
+        transition: 1s ease-in-out;
+      }
+
+      label {
+        position: absolute;
+        background-color: black;
+        font-family: sans-serif;
+        left: 1em;
+        top: 0.75em;
+        cursor: text;
+        transition: all 0.3s ease-in;
+        color: rgb(211, 210, 210);
+      }
+
+      .form_input:hover {
+        box-shadow: 0 5px 10px rgba(124, 125, 126, 0.651);
+        transition: 1s ease-in-out;
+        cursor: pointer;
+      }
+
+      .form_input:focus {
+        border: 1px solid rgb(28, 30, 167);
+        transition: 1s ease-in-out;
+      }
+
+      /* Floating effect when input is focused or has text */
+      .form_input:focus ~ label,
+      .form_input:not(:placeholder-shown) ~ label {
+        top: -0.6em;
+        left: 0.8em;
+        font-size: 0.75em;
+        padding: 0 0.25em;
+      }
+
+      input,
+      select {
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: 1s all ease-in-out;
+        border: 1px solid rgb(211, 210, 210);
+      }
+
+      .face-list {
+        width: 100%;
+      }
+
+      .face-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        padding: 2px;
+        border-bottom: 1px solid rgb(211, 210, 210);
+        transition: 1s all ease-in-out;
+        gap: 10px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      #result {
+        width: 270px;
+        padding: 11px;
+        text-align: center;
+        min-height: 30px;
+        border-radius: 16px;
+        font-weight: bolder;
+        background-image: linear-gradient(
+          to right top,
+          rgb(144, 144, 212),
+          white
+        );
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+      }
+
+      #loading {
+        color: #666;
+        font-style: italic;
+      }
+
+      .modal {
+        position: fixed;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 999;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        display: none;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 998;
+      }
+
+      #cameraIcon {
+        font-size: 80px;
+        position: absolute;
+      }
+
+      #cameraContainer {
+        width: 100%;
+        height: 500px !important;
+        box-shadow: 0px 3px 10px rgb(185, 181, 181);
+        border-radius: 8px;
+        background-color: #000;
+        overflow: hidden;
+        display: flex;
+        position: relative;
+        align-items: center;
+        justify-content: space-evenly;
+      }
+
+      /* button */
+      #openCamera {
+        background-color: #2196f3;
+        color: white;
+        position: relative;
+        transition: 1s all ease-in-out;
+        overflow: hidden;
+      }
+   
+      #openCamera::after {
+        content: "";
+        position: absolute;
+        top: -56%;
+        right: -3%;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(255, 255, 255, 0.637);
+        border-radius: 50%;
+        transform: translate(0, 0);
+        transition: transform 0.6s ease-in-out;
+      }
+
+      #openCamera:hover {
+        box-shadow: 0px 1px 15px rgb(41, 40, 40);
+        transition: 1s all ease-in-out;
+      }
+
+      #openCamera:hover::after {
+        transform: translate(-900%, 350%);
+      }
+
+      #captureButton {
+        background-color: #4caf50;
+        color: white;
+        position: relative;
+        transition: 1s all ease-in-out;
+        overflow: hidden;
+      }
+
+      #captureButton::after {
+        content: "";
+        position: absolute;
+        top: -56%;
+        right: -3%;
+        width: 20px;
+        height: 20px;
+        background-color: rgba(255, 255, 255, 0.637);
+        border-radius: 50%;
+        transform: translate(0, 0);
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .button-active:hover::after {
+        transform: translate(-900%, 350%);
+        transition: 1s all ease-in-out;
+        cursor: pointer;
+      }
+
+      .button-active:hover {
+        box-shadow: 0px 1px 15px rgb(41, 40, 40);
+        transition: 1s all ease-in-out;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background-color: #9e9e9e;
+        cursor: not-allowed;
+      }
+
+      button:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: scale(1.05);
+        transition: 1s all ease-in-out;
+      }
+
+      /* select option */
+      .adminn {
+        position: relative;
+        width: 60%;
+        max-width: 17em;
+        margin: 1em;
+        z-index: 8;
+      }
+
+      /* Label styling */
+      .adminn label {
+        display: block;
+        margin-bottom: 0.5em;
+        font-family: sans-serif;
+        color: white;
+      }
+
+      /* Select box styling */
+      .custom-select {
+        width: 100%;
+        padding: 0.75em 1em;
+        background-color: black;
+        color: white;
+        border: 1px solid rgb(224, 224, 224);
+        border-radius: 0.5em;
+        font-size: 1em;
+        font-family: sans-serif;
+        cursor: pointer;
+      }      
+
+      /* Arrow container */
+      .adminn::after {
+        content: "▼";
+        position: absolute;
+        top: 1em;
+        right: 1em;
+        pointer-events: none;
+        color: white;
+        font-size: 0.75em;
+        transition: transform 0.3s ease;
+      }
+
+      /* Rotate arrow when select is focused (dropdown open) */
+      .custom-select:focus + .adminn::after,
+      .custom-select:focus-visible + .adminn::after {
+        transform: rotate(180deg);
+      }
+
+      /* Optional hover effect */
+      .custom-select:hover {
+        box-shadow: 0px 3px 10px rgb(185, 181, 181);
+        transition: 1s ease-in-out;
+        cursor: pointer;
+      }
+
+      .shigu {
+        color: white;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Admin Panel</h1>
+      <div id="mainView">
+        <button onclick="showEnrollForm()">Enroll Face</button>
+        <button onclick="showDeleteView()">Delete Face</button>
+        <button onclick="BackToIndex()">Back to Camera Interface</button>
+      </div>
+
+      <div id="enrollForm">
+        <h2 class="admin manage">Enroll New Face</h2>
+        <div id="cameraContainer">
+          <video id="cameraPreview" class="hidden" autoplay playsinline></video>
+          <div id="cameraIcon">📷</div>
+        </div>
+        <canvas id="capturedImage" class="hidden"></canvas>
+        <div class="inputformbox">
+          <div class="form-field containerr">
+            <input
+              type="text"
+              id="nameInput"
+              autocomplete="off"
+              placeholder=" "
+              class="form_input"
+            />
+            <label for="nameInput">Name</label>
+          </div>
+          <div class="form-field adminn">
+            <label for="adminSelect">
+              Admin: <span id="adminText" class="shigu"></span>
+            </label>
+            <select id="adminSelect" class="custom-select" onchange="updateAdminText()">
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>            
+          </div>          
+        </div>
+        <div class="form-field">
+          <button id="openCamera" onclick="initializeCamera()">
+            Open Camera
+          </button>
+          <button id="captureButton" onclick="captureImage()" disabled>
+            Capture and Enroll
+          </button>
+        </div>
+        <div id="result">
+          <div id="loading" class="hidden">Processing...</div>
+          <div id="output"></div>
+        </div>
+        <button onclick="backToMain()">Back</button>
+      </div>
+
+      <div id="deleteView">
+        <h2 class="admin manage">Manage Faces</h2>
+        <div id="faceList" class="face-list"></div>
+        <button onclick="backToMain()">Back</button>
+      </div>
+    </div>
+
+    <!-- Modal Overlay and Box -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="updateModal">
+      <h3>Update Face Info</h3>
+      <input type="text" id="modalName" placeholder="New Name" />
+      <select id="modalAdmin">
+        <option value="0">No</option>
+        <option value="1">Yes</option>
+      </select>
+      <div style="margin-top: 10px">
+        <button onclick="submitUpdate()">Update</button>
+        <button onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+    <audio id="snapSound" src="snap.mp3" preload="auto"></audio>
+
+    <script>
+      const mainView = document.getElementById("mainView");
+      const enrollForm = document.getElementById("enrollForm");
+      const deleteView = document.getElementById("deleteView");
+      const videoElement = document.getElementById("cameraPreview");
+      const captureButton = document.getElementById("captureButton");
+      const loadingElement = document.getElementById("loading");
+      const outputElement = document.getElementById("output");
+      const canvasElement = document.getElementById("capturedImage");
+      const nameInput = document.getElementById("nameInput");
+      const adminSelect = document.getElementById("adminSelect");
+      const faceList = document.getElementById("faceList");
+      const cameraIcon = document.getElementById("cameraIcon");
+      const snapSound = document.getElementById("snapSound");
+
+      let mediaStream = null;
+      let updateOldName = "";
+
+      function BackToIndex() {
+        window.location.href = "http://localhost:8080";
+      }
+
+      function updateAdminText() {
+        const select = document.getElementById("adminSelect");
+        const display = document.getElementById("adminText");
+        display.textContent = select.options[select.selectedIndex].text;
+      }      
+
+      function showEnrollForm() {
+        mainView.style.display = "none";
+        enrollForm.style.display = "flex";
+        enrollForm.classList.add("enroll-active");
+        deleteView.style.display = "none";
+        cameraIcon.style.display = "block";
+        videoElement.classList.add("hidden");
+      }
+
+      function shigu() {
+        const adminSelect = document.getElementById("adminSelect");
+        const adminText = document.getElementById("adminText");
+
+        // Update the displayed text based on the selection
+        if (adminSelect.value === "1") {
+          adminText.textContent = " (: Yes)";
+        } else {
+          adminText.textContent = " (: No)";
+        }
+      }
+
+      function showDeleteView() {
+        mainView.style.display = "none";
+        enrollForm.style.display = "none";
+        enrollForm.classList.remove("enroll-active");
+        deleteView.style.display = "flex";
+        loadKnownFaces();
+      }
+
+      function backToMain() {
+        mainView.style.display = "block";
+        enrollForm.style.display = "none";
+        enrollForm.classList.remove("enroll-active");
+        deleteView.style.display = "none";
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          mediaStream = null;
+        }
+        videoElement.srcObject = null;
+        captureButton.disabled = true;
+        videoElement.classList.add("hidden");
+        cameraIcon.style.display = "block";
+      }
+
+      async function initializeCamera() {
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          videoElement.srcObject = mediaStream;
+          await videoElement.play();
+          captureButton.disabled = false;
+          videoElement.classList.remove("hidden");
+          cameraIcon.style.display = "none";
+          showMessage("Camera ready!");
+        } catch (error) {
+          showError(`Camera error: ${error.message}`);
+        }
+      }
+
+      function captureImage() {
+        const name = nameInput.value.trim();
+        if (!name) return showError("Please enter a name");
+
+        const [w, h] = [videoElement.videoWidth, videoElement.videoHeight];
+        canvasElement.width = w;
+        canvasElement.height = h;
+
+        const ctx = canvasElement.getContext("2d");
+        ctx.drawImage(videoElement, 0, 0, w, h);
+
+        videoElement.pause();
+        snapSound.currentTime = 0;
+        snapSound.play();
+
+        canvasElement.toBlob(
+          (blob) => {
+            enrollFace(blob, name, adminSelect.value);
+          },
+          "image/jpeg",
+          0.9
+        );
+      }
+
+      async function enrollFace(blob, name, admin) {
+        try {
+          showLoading();
+          captureButton.disabled = true;
+          const formData = new FormData();
+          formData.append("image", blob, "capture.jpg");
+          formData.append("name", name);
+          formData.append("admin", admin);
+
+          const res = await fetch("http://localhost:8000/enroll-face/", {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": getCSRFToken() },
+          });
+
+          const data = await res.json();
+          showResult(data.result);
+          setTimeout(() => location.reload(), 5000);
+        } catch (error) {
+          showError(error.message);
+        } finally {
+          hideLoading();
+          captureButton.disabled = false;
+        }
+      }
+      async function loadKnownFaces() {
+        try {
+          const res = await fetch("http://localhost:8000/get-known-faces/");
+          const data = await res.json();
+          faceList.innerHTML = "";
+          data.faces.forEach((face, i) => {
+            const div = document.createElement("div");
+            div.className = "face-item";
+            div.innerHTML = `
+          <span>${i + 1}: ${face.name} (Admin: ${
+              face.admin ? "Yes" : "No"
+            })</span>
+          
+         <div class="moving"> <button  onclick="openUpdateModal('${
+           face.name
+         }', ${face.admin})">Update</button>
+          <button class="delete-btn" onclick="deleteFace('${
+            face.name
+          }')">Delete</button></div>
+        `;
+            faceList.appendChild(div);
+          });
+        } catch (err) {
+          faceList.innerHTML = `<p style="color: red; text-decoration: underline; font-weight: bold">Error: ${err.message}</p>`;
+        }
+      }
+
+      async function deleteFace(name) {
+        if (!confirm(`Delete ${name}?`)) return;
+        const res = await fetch("http://localhost:8000/delete-face/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        alert(data.result);
+        loadKnownFaces();
+      }
+
+      function openUpdateModal(name, admin) {
+        updateOldName = name;
+        document.getElementById("modalName").value = name;
+        document.getElementById("modalAdmin").value = admin ? "1" : "0";
+        document.getElementById("modalOverlay").style.display = "block";
+        document.getElementById("updateModal").style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("modalOverlay").style.display = "none";
+        document.getElementById("updateModal").style.display = "none";
+      }
+
+      async function submitUpdate() {
+        const newName = document.getElementById("modalName").value.trim();
+        const newAdmin = document.getElementById("modalAdmin").value;
+
+        if (!newName) {
+          alert("Please enter a new name");
+          return;
+        }
+
+        try {
+          const res = await fetch("http://localhost:8000/update-face/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCSRFToken(),
+            },
+            body: JSON.stringify({
+              old_name: updateOldName,
+              new_name: newName,
+              admin: newAdmin,
+            }),
+          });
+
+          if (!res.ok) throw new Error("Server returned an error page");
+
+          const data = await res.json();
+          alert(data.result);
+          closeModal();
+          loadKnownFaces();
+        } catch (err) {
+          alert("Update failed: " + err.message);
+          closeModal();
+        }
+      }
+
+      function showLoading() {
+        loadingElement.classList.remove("hidden");
+        outputElement.innerHTML = "";
+      }
+
+      function hideLoading() {
+        loadingElement.classList.add("hidden");
+      }
+
+      function showResult(result) {
+        outputElement.innerText = result;
+        outputElement.style.color = "#000";
+      }
+
+      function showMessage(msg) {
+        outputElement.innerHTML = msg;
+        outputElement.style.color = "#333";
+      }
+
+      function showError(msg) {
+        outputElement.innerHTML = msg;
+        outputElement.style.color = "red";
+      }
+
+      function getCSRFToken() {
+        return (
+          document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("csrftoken="))
+            ?.split("=")[1] || ""
+        );
+      }
+
+      window.addEventListener("beforeunload", () => {
+        if (mediaStream)
+          mediaStream.getTracks().forEach((track) => track.stop());
+      });
+    </script>
+  </body>
+</html>
